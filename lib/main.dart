@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'login_page.dart';    // Tu página de login existente
 import 'splash_screen.dart'; // <<--- AÑADE ESTA IMPORTACIÓN (crearás este archivo)
+import 'select_role.dart';
 
 // MyHomePage puede permanecer aquí o moverse a su propio archivo (ej. home_page.dart).
 // Si lo mueves, asegúrate de importarlo aquí también.
@@ -54,6 +55,7 @@ class MyApp extends StatelessWidget {
       routes: {
         // Define rutas nombradas para una navegación más limpia
         '/login': (context) => const LoginPage(),
+        '/select_role': (context) => const SelectRolePage(),
         '/home': (context) => const MyHomePage(title: 'DISDEL - Principal'), // Pasa el título requerido
         // Puedes añadir más rutas aquí para otras pantallas de tu app
       },
