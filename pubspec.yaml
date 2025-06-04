@@ -13,6 +13,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  http: ^1.1.0  # O la versión más reciente
+  shared_preferences: ^2.2.2 # O la versión más reciente
   cupertino_icons: ^1.0.8
   flutter_animate: ^4.5.0 # <--- AQUÍ ES EL LUGAR CORRECTO
 

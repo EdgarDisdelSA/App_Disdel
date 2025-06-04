@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart'; // Asegúrate de haber añadido este paquete
+import 'package:flutter_animate/flutter_animate.dart';
+import 'auth_service.dart';
+import 'select_role.dart'; // Asegúrate que este archivo define 'SelectRolePage'
 
 // Define los colores de tu empresa para fácil acceso
-const Color disdelBlue = Color(0xFF004A8F); // Azul corporativo
-const Color disdelGreen = Color(0xFF8BC53F); // Verde corporativo
+const Color disdelBlue = Color(0xFF004A8F);
+const Color disdelGreen = Color(0xFF8BC53F); // Usado en el diseño original del login
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -14,38 +16,54 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _nameUserController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
   bool _obscurePassword = true;
+  String? _errorMessage;
 
-  void _login() async {
+  final AuthService _authService = AuthService();
+
+  void _performLogin() async {
     if (!mounted) return;
 
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
+        _errorMessage = null;
       });
 
-      print('Email: ${_emailController.text}');
-      print('Password: ${_passwordController.text}');
-      await Future.delayed(const Duration(seconds: 2));
+      final response = await _authService.login(
+        _nameUserController.text,
+        _passwordController.text,
+      );
 
       if (mounted) {
-        Navigator.pushReplacementNamed(context, '/select_role');
+        if (response != null && response['Resultado'] == true) {
+          // Login exitoso
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const SelectRolePage()), // <<<--- CORRECCIÓN AQUÍ
+          );
+        } else {
+          // Login fallido
+          setState(() {
+            _errorMessage = response?['Mensaje'] as String? ?? "Error desconocido. Inténtalo de nuevo.";
+            _isLoading = false; // Importante: detener el loading en caso de error
+          });
+        }
+        // No es necesario un setState adicional para _isLoading aquí si ya se hizo en el else
+        // o si la navegación ocurre, ya que el widget se reemplaza.
       }
     } else {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      // Si la validación del formulario falla, _isLoading ya debería ser false.
+      // No es estrictamente necesario hacer nada aquí para _isLoading.
     }
   }
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _nameUserController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -55,16 +73,13 @@ class _LoginPageState extends State<LoginPage> {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
 
-    // Color de fondo amigable elegido
-    const Color pageBackgroundColor = Color(0xFFF5F5F5); // Un gris muy claro (off-white)
-
-    // Color para el relleno de los campos de texto, ligeramente diferente al fondo
+    const Color pageBackgroundColor = Color(0xFFF5F5F5);
     final Color textFieldFillColor = Colors.grey.shade200;
 
     return Scaffold(
       backgroundColor: pageBackgroundColor,
       body: Container(
-        color: pageBackgroundColor, // Aplicamos el color de fondo al container también
+        color: pageBackgroundColor,
         child: Center(
           child: SingleChildScrollView(
             padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.08),
@@ -72,27 +87,25 @@ class _LoginPageState extends State<LoginPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                // 1. Logo Animado
                 Image.asset(
-                  'assets/images/disdel_sa.png', // Reemplaza con 'disdel_inicio.gif' si prefieres el GIF
+                  'assets/images/disdel_sa.png', // Asegúrate que esta imagen exista en tu carpeta assets
                   height: screenHeight * 0.15,
                 )
                     .animate()
                     .fadeIn(duration: 800.ms, curve: Curves.easeOutCubic)
                     .slideY(begin: -0.3, end: 0, duration: 700.ms, curve: Curves.easeOutExpo)
                     .then(delay: 200.ms)
-                    .shimmer(duration: 1500.ms, color: disdelBlue.withOpacity(0.2)), // Shimmer más sutil
+                    .shimmer(duration: 1500.ms, color: disdelBlue.withOpacity(0.2)),
 
                 SizedBox(height: screenHeight * 0.04),
 
-                // 2. Texto de Bienvenida Animado
                 Text(
                   'Bienvenido a',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: screenWidth * 0.055,
                     fontWeight: FontWeight.w300,
-                    color: disdelBlue.withOpacity(0.85), // Texto oscuro para buen contraste
+                    color: disdelBlue.withOpacity(0.85),
                   ),
                 )
                     .animate()
@@ -105,12 +118,12 @@ class _LoginPageState extends State<LoginPage> {
                   style: TextStyle(
                       fontSize: screenWidth * 0.08,
                       fontWeight: FontWeight.bold,
-                      color: disdelBlue, // Texto oscuro principal
+                      color: disdelBlue,
                       letterSpacing: 1.2,
                       shadows: [
-                        Shadow( // Sombra sutil para el texto principal
+                        Shadow(
                           blurRadius: 4.0,
-                          color: disdelGreen.withOpacity(0.3),
+                          color: disdelGreen.withOpacity(0.3), // Usando tu color verde original para la sombra
                           offset: const Offset(1.0, 1.0),
                         ),
                       ]
@@ -126,14 +139,13 @@ class _LoginPageState extends State<LoginPage> {
                   key: _formKey,
                   child: Column(
                     children: [
-                      // 3. Campo de Usuario Animado
                       TextFormField(
-                        controller: _emailController,
+                        controller: _nameUserController,
                         style: const TextStyle(color: Colors.black87, fontSize: 16),
                         decoration: InputDecoration(
-                          hintText: 'Usuario o Correo',
+                          hintText: 'Usuario',
                           hintStyle: TextStyle(color: Colors.grey.shade600),
-                          prefixIcon: Icon(Icons.person_outline, color: disdelGreen, size: 22),
+                          prefixIcon: Icon(Icons.person_outline, color: disdelGreen, size: 22), // Usando tu color verde original
                           filled: true,
                           fillColor: textFieldFillColor,
                           contentPadding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
@@ -143,14 +155,14 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
-                            borderSide: const BorderSide(color: disdelGreen, width: 2),
+                            borderSide: const BorderSide(color: disdelGreen, width: 2), // Usando tu color verde original
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
                             borderSide: BorderSide(color: Colors.grey.shade300, width: 1.0),
                           ),
                         ),
-                        keyboardType: TextInputType.emailAddress,
+                        keyboardType: TextInputType.text,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Por favor, ingrese su usuario';
@@ -164,18 +176,17 @@ class _LoginPageState extends State<LoginPage> {
 
                       SizedBox(height: screenHeight * 0.025),
 
-                      // 4. Campo de Contraseña Animado
                       TextFormField(
                         controller: _passwordController,
                         style: const TextStyle(color: Colors.black87, fontSize: 16),
                         decoration: InputDecoration(
                           hintText: 'Contraseña',
                           hintStyle: TextStyle(color: Colors.grey.shade600),
-                          prefixIcon: Icon(Icons.lock_outline, color: disdelGreen, size: 22),
+                          prefixIcon: Icon(Icons.lock_outline, color: disdelGreen, size: 22), // Usando tu color verde original
                           suffixIcon: IconButton(
                             icon: Icon(
                               _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                              color: disdelGreen.withOpacity(0.9),
+                              color: disdelGreen.withOpacity(0.9), // Usando tu color verde original
                             ),
                             onPressed: () {
                               setState(() {
@@ -192,7 +203,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
-                            borderSide: const BorderSide(color: disdelGreen, width: 2),
+                            borderSide: const BorderSide(color: disdelGreen, width: 2), // Usando tu color verde original
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
@@ -214,23 +225,38 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
 
-                SizedBox(height: screenHeight * 0.05),
+                if (_errorMessage != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 15.0, bottom: 0),
+                    child: Text(
+                      _errorMessage!,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.red.shade700,
+                        fontSize: screenWidth * 0.035,
+                      ),
+                    ).animate().shake(hz: 2, duration: 300.ms),
+                  ),
 
-                // 5. Botón de Login Animado
+                SizedBox(height: _errorMessage != null ? screenHeight * 0.02 : screenHeight * 0.05),
+
                 _isLoading
-                    ? Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(disdelGreen)))
+                    ? Center(child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(disdelGreen)), // Usando tu color verde original
+                ))
                     : ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: disdelGreen,
+                    backgroundColor: disdelGreen, // Usando tu color verde original
                     foregroundColor: disdelBlue,
-                    padding: EdgeInsets.symmetric(vertical: screenHeight * 0.019), // Ajuste ligero
+                    padding: EdgeInsets.symmetric(vertical: screenHeight * 0.019),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12.0),
                     ),
-                    elevation: 6, // Elevación moderada
-                    shadowColor: disdelGreen.withOpacity(0.5),
+                    elevation: 6,
+                    shadowColor: disdelGreen.withOpacity(0.5), // Usando tu color verde original
                   ),
-                  onPressed: _login,
+                  onPressed: _performLogin,
                   child: Text(
                     'INGRESAR',
                     style: TextStyle(fontSize: screenWidth * 0.043, fontWeight: FontWeight.bold, letterSpacing: 1.2),
@@ -240,11 +266,10 @@ class _LoginPageState extends State<LoginPage> {
                     .fadeIn(duration: 700.ms)
                     .scaleXY(begin: 0.7, end: 1, duration: 600.ms, curve: Curves.elasticOut)
                     .then(delay: 200.ms)
-                    .shake(hz: 3, duration: 300.ms, curve: Curves.easeInOutCubic), // Shake un poco más suave
+                    .shake(hz: 3, duration: 300.ms, curve: Curves.easeInOutCubic),
 
                 SizedBox(height: screenHeight * 0.02),
 
-                // 6. Botón de "Olvidé Contraseña" Animado
                 TextButton(
                   onPressed: _isLoading ? null : () {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -265,7 +290,7 @@ class _LoginPageState extends State<LoginPage> {
                     .animate(delay: 1500.ms)
                     .fadeIn(duration: 600.ms),
 
-                SizedBox(height: screenHeight * 0.03), // Espacio extra al final
+                SizedBox(height: screenHeight * 0.03),
               ],
             ),
           ),
