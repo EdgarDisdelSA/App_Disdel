@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+// import 'package:flutter_animate/flutter_animate.dart'; // Comentado temporalmente para depurar
 import 'auth_service.dart';
 import 'select_role.dart'; // Asegúrate que este archivo define 'SelectRolePage'
 
@@ -39,25 +39,30 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+
         if (response != null && response['Resultado'] == true) {
-          // Login exitoso
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const SelectRolePage()), // <<<--- CORRECCIÓN AQUÍ
-          );
+          final String? docEntry = response['DocEntry']?.toString();
+          if (docEntry != null && docEntry.isNotEmpty) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SelectRolePage(docEntry: docEntry),
+              ),
+            );
+          } else {
+            setState(() {
+              _errorMessage = "Error: No se recibió el identificador de usuario desde el servidor.";
+            });
+          }
         } else {
-          // Login fallido
           setState(() {
             _errorMessage = response?['Mensaje'] as String? ?? "Error desconocido. Inténtalo de nuevo.";
-            _isLoading = false; // Importante: detener el loading en caso de error
           });
         }
-        // No es necesario un setState adicional para _isLoading aquí si ya se hizo en el else
-        // o si la navegación ocurre, ya que el widget se reemplaza.
       }
-    } else {
-      // Si la validación del formulario falla, _isLoading ya debería ser false.
-      // No es estrictamente necesario hacer nada aquí para _isLoading.
     }
   }
 
@@ -78,8 +83,8 @@ class _LoginPageState extends State<LoginPage> {
 
     return Scaffold(
       backgroundColor: pageBackgroundColor,
-      body: Container(
-        color: pageBackgroundColor,
+      body: Container( // Podría ser directamente un Center si el color del Scaffold ya es el deseado
+        color: pageBackgroundColor, // Redundante si Scaffold.backgroundColor es el mismo
         child: Center(
           child: SingleChildScrollView(
             padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.08),
@@ -88,14 +93,14 @@ class _LoginPageState extends State<LoginPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 Image.asset(
-                  'assets/images/disdel_sa.png', // Asegúrate que esta imagen exista en tu carpeta assets
+                  'assets/images/disdel_sa.png',
                   height: screenHeight * 0.15,
-                )
-                    .animate()
-                    .fadeIn(duration: 800.ms, curve: Curves.easeOutCubic)
-                    .slideY(begin: -0.3, end: 0, duration: 700.ms, curve: Curves.easeOutExpo)
-                    .then(delay: 200.ms)
-                    .shimmer(duration: 1500.ms, color: disdelBlue.withOpacity(0.2)),
+                ),
+                //     .animate()
+                //     .fadeIn(duration: 800.ms, curve: Curves.easeOutCubic)
+                //     .slideY(begin: -0.3, end: 0, duration: 700.ms, curve: Curves.easeOutExpo)
+                //     .then(delay: 200.ms)
+                //     .shimmer(duration: 1500.ms, color: disdelBlue.withOpacity(0.2)),
 
                 SizedBox(height: screenHeight * 0.04),
 
@@ -107,10 +112,10 @@ class _LoginPageState extends State<LoginPage> {
                     fontWeight: FontWeight.w300,
                     color: disdelBlue.withOpacity(0.85),
                   ),
-                )
-                    .animate()
-                    .fadeIn(delay: 500.ms, duration: 700.ms)
-                    .slideY(begin: 0.2, end: 0, duration: 600.ms, curve: Curves.easeOutCubic),
+                ),
+                //     .animate()
+                //     .fadeIn(delay: 500.ms, duration: 700.ms)
+                //     .slideY(begin: 0.2, end: 0, duration: 600.ms, curve: Curves.easeOutCubic),
 
                 Text(
                   'DISDEL S.A.',
@@ -123,15 +128,15 @@ class _LoginPageState extends State<LoginPage> {
                       shadows: [
                         Shadow(
                           blurRadius: 4.0,
-                          color: disdelGreen.withOpacity(0.3), // Usando tu color verde original para la sombra
+                          color: disdelGreen.withOpacity(0.3),
                           offset: const Offset(1.0, 1.0),
                         ),
                       ]
                   ),
-                )
-                    .animate(delay: 600.ms)
-                    .fadeIn(duration: 800.ms)
-                    .scaleXY(begin: 0.8, end: 1, duration: 700.ms, curve: Curves.elasticOut),
+                ),
+                //     .animate(delay: 600.ms)
+                //     .fadeIn(duration: 800.ms)
+                //     .scaleXY(begin: 0.8, end: 1, duration: 700.ms, curve: Curves.elasticOut),
 
                 SizedBox(height: screenHeight * 0.05),
 
@@ -145,7 +150,7 @@ class _LoginPageState extends State<LoginPage> {
                         decoration: InputDecoration(
                           hintText: 'Usuario',
                           hintStyle: TextStyle(color: Colors.grey.shade600),
-                          prefixIcon: Icon(Icons.person_outline, color: disdelGreen, size: 22), // Usando tu color verde original
+                          prefixIcon: Icon(Icons.person_outline, color: disdelGreen, size: 22),
                           filled: true,
                           fillColor: textFieldFillColor,
                           contentPadding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
@@ -155,7 +160,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
-                            borderSide: const BorderSide(color: disdelGreen, width: 2), // Usando tu color verde original
+                            borderSide: const BorderSide(color: disdelGreen, width: 2),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
@@ -169,10 +174,10 @@ class _LoginPageState extends State<LoginPage> {
                           }
                           return null;
                         },
-                      )
-                          .animate(delay: 900.ms)
-                          .fadeIn(duration: 600.ms)
-                          .slideX(begin: -0.5, end: 0, duration: 500.ms, curve: Curves.easeOutCubic),
+                      ),
+                      //     .animate(delay: 900.ms)
+                      //     .fadeIn(duration: 600.ms)
+                      //     .slideX(begin: -0.5, end: 0, duration: 500.ms, curve: Curves.easeOutCubic),
 
                       SizedBox(height: screenHeight * 0.025),
 
@@ -182,11 +187,11 @@ class _LoginPageState extends State<LoginPage> {
                         decoration: InputDecoration(
                           hintText: 'Contraseña',
                           hintStyle: TextStyle(color: Colors.grey.shade600),
-                          prefixIcon: Icon(Icons.lock_outline, color: disdelGreen, size: 22), // Usando tu color verde original
+                          prefixIcon: Icon(Icons.lock_outline, color: disdelGreen, size: 22),
                           suffixIcon: IconButton(
                             icon: Icon(
                               _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                              color: disdelGreen.withOpacity(0.9), // Usando tu color verde original
+                              color: disdelGreen.withOpacity(0.9),
                             ),
                             onPressed: () {
                               setState(() {
@@ -203,7 +208,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
-                            borderSide: const BorderSide(color: disdelGreen, width: 2), // Usando tu color verde original
+                            borderSide: const BorderSide(color: disdelGreen, width: 2),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
@@ -217,25 +222,26 @@ class _LoginPageState extends State<LoginPage> {
                           }
                           return null;
                         },
-                      )
-                          .animate(delay: 1100.ms)
-                          .fadeIn(duration: 600.ms)
-                          .slideX(begin: 0.5, end: 0, duration: 500.ms, curve: Curves.easeOutCubic),
+                      ),
+                      //     .animate(delay: 1100.ms)
+                      //     .fadeIn(duration: 600.ms)
+                      //     .slideX(begin: 0.5, end: 0, duration: 500.ms, curve: Curves.easeOutCubic),
                     ],
                   ),
                 ),
 
                 if (_errorMessage != null)
                   Padding(
-                    padding: const EdgeInsets.only(top: 15.0, bottom: 0),
-                    child: Text(
-                      _errorMessage!,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.red.shade700,
-                        fontSize: screenWidth * 0.035,
-                      ),
-                    ).animate().shake(hz: 2, duration: 300.ms),
+                      padding: const EdgeInsets.only(top: 15.0, bottom: 0),
+                      child: Text(
+                        _errorMessage!,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.red.shade700,
+                          fontSize: screenWidth * 0.035,
+                        ),
+                      )
+                    // .animate().shake(hz: 2, duration: 300.ms), // Animación del mensaje de error también comentada
                   ),
 
                 SizedBox(height: _errorMessage != null ? screenHeight * 0.02 : screenHeight * 0.05),
@@ -243,30 +249,30 @@ class _LoginPageState extends State<LoginPage> {
                 _isLoading
                     ? Center(child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
-                  child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(disdelGreen)), // Usando tu color verde original
+                  child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(disdelGreen)),
                 ))
                     : ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: disdelGreen, // Usando tu color verde original
+                    backgroundColor: disdelGreen,
                     foregroundColor: disdelBlue,
                     padding: EdgeInsets.symmetric(vertical: screenHeight * 0.019),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12.0),
                     ),
                     elevation: 6,
-                    shadowColor: disdelGreen.withOpacity(0.5), // Usando tu color verde original
+                    shadowColor: disdelGreen.withOpacity(0.5),
                   ),
                   onPressed: _performLogin,
                   child: Text(
                     'INGRESAR',
                     style: TextStyle(fontSize: screenWidth * 0.043, fontWeight: FontWeight.bold, letterSpacing: 1.2),
                   ),
-                )
-                    .animate(delay: 1300.ms)
-                    .fadeIn(duration: 700.ms)
-                    .scaleXY(begin: 0.7, end: 1, duration: 600.ms, curve: Curves.elasticOut)
-                    .then(delay: 200.ms)
-                    .shake(hz: 3, duration: 300.ms, curve: Curves.easeInOutCubic),
+                ),
+                // .animate(delay: 1300.ms)
+                // .fadeIn(duration: 700.ms)
+                // .scaleXY(begin: 0.7, end: 1, duration: 600.ms, curve: Curves.elasticOut)
+                // .then(delay: 200.ms)
+                // .shake(hz: 3, duration: 300.ms, curve: Curves.easeInOutCubic),
 
                 SizedBox(height: screenHeight * 0.02),
 
@@ -286,9 +292,9 @@ class _LoginPageState extends State<LoginPage> {
                     '¿Olvidaste tu contraseña?',
                     style: TextStyle(color: disdelBlue.withOpacity(0.75), fontSize: screenWidth * 0.038),
                   ),
-                )
-                    .animate(delay: 1500.ms)
-                    .fadeIn(duration: 600.ms),
+                ),
+                //     .animate(delay: 1500.ms)
+                //     .fadeIn(duration: 600.ms),
 
                 SizedBox(height: screenHeight * 0.03),
               ],
