@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (context) => const LoginPage(),
         // '/select_role': (context) => const SelectRolePage(), // SE ELIMINA O COMENTA
-        '/home': (context) => const HomePage(title: 'DISDEL Panel Principal'), // <<--- CAMBIO AQUÍ
+        '/home': (context) => const HomePage(title: 'DISDEL S.A'), // <<--- CAMBIO AQUÍ
       },
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(

@@ -44,6 +44,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   String? _userDocEntry;
   String? _selectedRoleName;
+  String? _userName; // Variable para almacenar el nombre del usuario
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -66,9 +67,9 @@ class _HomePageState extends State<HomePage> {
         final theme = Theme.of(context);
         // Ahora asignamos los valores a la lista ya existente
         _quickActions = [
+          QuickAction(label: "Soporte Técnico", icon: Icons.headset_mic_outlined, onTap: () { print("Soporte Tapped"); }, backgroundColor: Colors.orange.withOpacity(0.1)),
           QuickAction(label: "Nuevo Pedido", icon: Icons.add_shopping_cart_outlined, onTap: () { print("Nuevo Pedido Tapped"); }, backgroundColor: theme.colorScheme.secondary.withOpacity(0.1)),
           QuickAction(label: "Ver Facturas", icon: Icons.receipt_long_outlined, onTap: () { print("Ver Facturas Tapped"); }, backgroundColor: theme.colorScheme.primary.withOpacity(0.1)),
-          QuickAction(label: "Soporte Técnico", icon: Icons.support_agent_outlined, onTap: () { print("Soporte Tapped"); }, backgroundColor: Colors.orange.withOpacity(0.1)),
           QuickAction(label: "Rutas de Entrega", icon: Icons.location_on_outlined, onTap: () { print("Rutas Tapped"); }, backgroundColor: Colors.teal.withOpacity(0.1)),
         ];
         setState(() {}); // Necesario para que el build sepa que _quickActions tiene datos
@@ -84,6 +85,8 @@ class _HomePageState extends State<HomePage> {
       _userDocEntry = arguments['userDocEntry'] as String?;
       final dynamic selectedRoleArg = arguments['selectedRole'];
       _selectedRoleName = selectedRoleArg?.toString();
+      // Leemos el nombre de usuario de los argumentos
+      _userName = arguments['nameuser'] as String?;
     }
   }
 
@@ -295,7 +298,7 @@ class _HomePageState extends State<HomePage> {
               crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min,
               children: [
                 Text(_selectedRoleName ?? 'Usuario DISDEL', style: theme.textTheme.titleLarge?.copyWith(color: primaryColor, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis).animate().fadeIn(delay: 250.ms).slideX(begin: -0.2),
-                if (_userDocEntry != null) Text('ID: $_userDocEntry', style: theme.textTheme.bodyMedium?.copyWith(color: primaryColor.withOpacity(0.7))).animate().fadeIn(delay: 350.ms).slideX(begin: -0.2),
+                if (_userDocEntry != null) Text('ID Usuario: $_userDocEntry', style: theme.textTheme.bodyMedium?.copyWith(color: primaryColor.withOpacity(0.7))).animate().fadeIn(delay: 350.ms).slideX(begin: -0.2),
               ],
             ),
           ),
@@ -337,14 +340,15 @@ class _HomePageState extends State<HomePage> {
 
   // --- WIDGETS DEL CUERPO DE LA PÁGINA ---
   Widget _buildWelcomeHeader(ThemeData theme, Color primaryColor) {
+    // Se prioriza el nombre de usuario, con fallback al rol o un texto genérico.
+    final String displayName = _userName ?? _selectedRoleName ?? 'Usuario';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('PANEL DE CONTROL', style: theme.textTheme.labelSmall?.copyWith(color: primaryColor.withOpacity(0.7), fontWeight: FontWeight.bold, letterSpacing: 0.8)),
-        const SizedBox(height: 2),
-        Text('Hola, ${_selectedRoleName ?? 'Usuario'}!', style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold, color: primaryColor, fontSize: 26)),
+        Text('Hola, $displayName!', style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold, color: primaryColor, fontSize: 26)),
         const SizedBox(height: 4),
-        Text('Bienvenido al panel de control DISDEL S.A.', style: theme.textTheme.titleMedium?.copyWith(color: theme.textTheme.bodyMedium?.color?.withOpacity(0.9))),
+        Text('Bienvenido al panel de control.', style: theme.textTheme.titleMedium?.copyWith(color: theme.textTheme.bodyMedium?.color?.withOpacity(0.9))),
       ],
     );
   }
@@ -357,13 +361,6 @@ class _HomePageState extends State<HomePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(bottom: 12.0),
-          child: Text(
-            "Funciones Destacadas",
-            style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: primaryColor),
-          ),
-        ),
         carousel.CarouselSlider.builder(
           itemCount: _quickActions.length,
           itemBuilder: (BuildContext context, int itemIndex, int pageViewIndex) {
@@ -379,7 +376,7 @@ class _HomePageState extends State<HomePage> {
           options: carousel.CarouselOptions(
             height: 150.0,
             autoPlay: _quickActions.length > 1,
-            autoPlayInterval: const Duration(seconds: 6),
+            autoPlayInterval: const Duration(seconds: 4),
             enlargeCenterPage: true,
             viewportFraction: 0.8,
             aspectRatio: 16/7,
@@ -410,15 +407,25 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildCarouselItem(ThemeData theme, String label, IconData icon, Color backgroundColor, VoidCallback onTap) {
-    Color contentColor = backgroundColor.computeLuminance() > 0.5 ? Colors.black87 : Colors.white;
+    // Color para el texto y el icono
+    const Color contentColor = Color(0xFF616969);
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
+      splashColor: contentColor.withOpacity(0.1),
+      highlightColor: contentColor.withOpacity(0.05),
       child: Card(
-        elevation: 2.0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        color: backgroundColor,
-        clipBehavior: Clip.antiAlias,
+        elevation: 0.0,
+        color: Colors.transparent,
+        // --- CAMBIO AQUÍ: Añadimos un borde a la tarjeta ---
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(      // Se añade la propiedad 'side'
+            color: Color(0xFF19ac8a),  // Con el color que solicitaste
+            width: 1.5,                // Y un grosor para que sea visible
+          ),
+        ),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -427,6 +434,7 @@ class _HomePageState extends State<HomePage> {
             children: <Widget>[
               Icon(icon, size: 36, color: contentColor.withOpacity(0.85)),
               const SizedBox(height: 10),
+
               Text(
                 label,
                 textAlign: TextAlign.center,
@@ -443,6 +451,7 @@ class _HomePageState extends State<HomePage> {
       ),
     ).animate().fadeIn(duration: 400.ms).scaleXY(begin: 0.95, curve: Curves.easeOutBack);
   }
+
 
   // --- NUEVA SECCIÓN DE NOTAS ---
   Widget _buildNotesSection(ThemeData theme, Color primaryColor, Color accentColor) {

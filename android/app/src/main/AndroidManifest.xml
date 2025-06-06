@@ -1,13 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Asegúrate de que este permiso esté presente -->
-    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:label="app_disdel"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true"> <!-- **** AÑADE ESTO AQUÍ **** -->
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -47,4 +46,6 @@
             <data android:mimeType="text/plain"/>
         </intent>
     </queries>
+    <uses-permission android:name="android.permission.INTERNET"/>
+
 </manifest>
