@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'login_page.dart';    // Tu página de login existente
-import 'splash_screen.dart'; // Tu pantalla de splash
-import 'home_page.dart';     // <<--- AÑADE ESTA IMPORTACIÓN
+import 'screens/login_page.dart';    // Tu página de login existente
+import 'screens/splash_screen.dart'; // Tu pantalla de splash
+import 'screens/home_page.dart';     // <<--- AÑADE ESTA IMPORTACIÓN
 
 // Colores de la empresa (puedes definirlos aquí para usarlos en el tema)
 // O usar los nuevos que sugerí:
@@ -129,7 +129,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-// ELIMINA LA DEFINICIÓN DE MyHomePage y _MyHomePageState DE AQUÍ
-// class MyHomePage extends StatefulWidget { ... }
-// class _MyHomePageState extends State<MyHomePage> { ... }
