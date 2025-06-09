@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart'; // ¡Import activado!
-import 'auth_service.dart';
+import '../services/auth_service.dart';
 import 'select_role.dart'; // Asegúrate que este archivo define 'SelectRolePage'
 
 // Define los colores de tu empresa para fácil acceso

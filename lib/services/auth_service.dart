@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // Asegúrate de que la ruta de importación sea correcta si tu modelo está en una ubicación diferente.
 // Por ejemplo, si creas 'lib/models/usuario_rol.dart'.
-import 'models/usuario_rol.dart';
+import '../models/usuario_rol.dart';
 
 class AuthService {
   // CAMBIA ESTO POR LA URL BASE REAL DE TU API

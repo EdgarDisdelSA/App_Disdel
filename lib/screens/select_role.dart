@@ -1,8 +1,8 @@
 // lib/select_role.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart'; // Si usas animaciones aquí
-import 'auth_service.dart';
-import 'models/usuario_rol.dart'; // Asegúrate de que esta ruta es correcta
+import '../services/auth_service.dart';
+import '../models/usuario_rol.dart'; // Asegúrate de que esta ruta es correcta
 
 // Define los colores aquí si son específicos de esta página y no están en el tema global
 // o si quieres tenerlos a mano. Si ya están en el tema de main.dart, puedes omitirlos.
