@@ -1,4 +1,5 @@
 // lib/screens/leave_request_page.dart
+import 'package:app_disdel/widgets/app_drawer.dart'; // <-- 1. IMPORTAMOS EL PANEL
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -8,7 +9,19 @@ const Color disdelGreen = Color(0xFF8BC53F);
 const Color lightGrey = Color(0xFFF2F2F2);
 
 class LeaveRequestPage extends StatefulWidget {
-  LeaveRequestPage({super.key});
+  // --- 2. AÑADIMOS PARÁMETROS PARA RECIBIR DATOS DEL USUARIO ---
+  final String? userName;
+  final String? selectedRoleName;
+  final String? userDocEntry;
+  final VoidCallback onLogout;
+
+  LeaveRequestPage({
+    super.key,
+    required this.userName,
+    required this.selectedRoleName,
+    required this.userDocEntry,
+    required this.onLogout,
+  });
 
   @override
   State<LeaveRequestPage> createState() => _LeaveRequestPageState();
@@ -93,7 +106,6 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
     if (range == null) {
       return 'Seleccionar fechas';
     }
-    // Esta línea ahora funcionará porque el paquete 'intl' está instalado.
     final format = DateFormat('d MMM yyyy', 'es_ES');
     return '${format.format(range.start)} - ${format.format(range.end)}';
   }
@@ -107,6 +119,13 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
         backgroundColor: Colors.white,
         elevation: 0.5,
         iconTheme: const IconThemeData(color: disdelBlue),
+      ),
+      // --- 3. AÑADIMOS EL PANEL AQUÍ, USANDO LOS DATOS RECIBIDOS ---
+      drawer: AppDrawer(
+        userName: widget.userName,
+        selectedRoleName: widget.selectedRoleName,
+        userDocEntry: widget.userDocEntry,
+        onLogout: widget.onLogout,
       ),
       body: ListView(
         padding: const EdgeInsets.all(20.0),
@@ -162,8 +181,9 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
             ),
             const Divider(height: 24),
-            _buildInfoRow(Icons.person_outline, 'Nombre', 'EDGAR LAUREANO SOC RAC'),
-            _buildInfoRow(Icons.badge_outlined, 'ID Empleado', '463'),
+            // Usamos los datos del widget para mostrar el nombre
+            _buildInfoRow(Icons.person_outline, 'Nombre', widget.userName ?? 'No disponible'),
+            _buildInfoRow(Icons.badge_outlined, 'ID Empleado', widget.userDocEntry ?? 'N/A'),
             _buildInfoRow(Icons.calendar_today_outlined, 'Días disponibles', '0', highlight: true),
           ],
         ),

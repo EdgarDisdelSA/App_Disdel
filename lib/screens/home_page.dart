@@ -1,8 +1,9 @@
 // lib/screens/home_page.dart
+import 'package:app_disdel/widgets/app_drawer.dart'; // <-- 1. IMPORTAMOS NUESTRO NUEVO WIDGET
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:carousel_slider/carousel_slider.dart' as carousel;
-import 'leave_request_page.dart';
+// ya no necesitamos importar leave_request_page.dart aquí
 
 // Modelo simple para una nota
 class Note {
@@ -96,6 +97,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _showNoteDialog({Note? existingNote}) {
+    // ... (el código de este método no cambia)
     final bool isEditing = existingNote != null;
     TextEditingController titleController = TextEditingController(text: existingNote?.title);
     TextEditingController contentController = TextEditingController(text: existingNote?.content);
@@ -155,6 +157,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _deleteNote(Note noteToDelete) {
+    // ... (el código de este método no cambia)
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -200,12 +203,18 @@ class _HomePageState extends State<HomePage> {
         actionsIconTheme: IconThemeData(color: onAccentColor),
         shape: Border(bottom: BorderSide(color: primaryColor.withOpacity(0.5), width: 1.5)),
         actions: [
-          IconButton(icon: const Icon(Icons.notifications_none_outlined, size: 26), tooltip: 'Notificaciones', onPressed: () { /* TODO */ }).animate().fadeIn(delay: 400.ms).shake(hz: 2),
+          IconButton(icon: const Icon(Icons.notifications_none_outlined, size: 26), tooltip: 'Notificaciones', onPressed: () {}).animate().fadeIn(delay: 400.ms).shake(hz: 2),
           IconButton(icon: const Icon(Icons.logout_outlined, size: 26), tooltip: 'Cerrar Sesión', onPressed: _logout).animate().fadeIn(delay: 500.ms).shake(hz: 2),
           const SizedBox(width: 8),
         ],
       ),
-      drawer: _buildAppDrawer(context, theme, primaryColor, accentColor),
+      // --- 2. USAMOS NUESTRO WIDGET REUTILIZABLE AQUÍ ---
+      drawer: AppDrawer(
+        userName: _userName,
+        selectedRoleName: _selectedRoleName,
+        userDocEntry: _userDocEntry,
+        onLogout: _logout, // Pasamos la función de logout
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: <Widget>[
@@ -220,129 +229,13 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildAppDrawer(BuildContext context, ThemeData theme, Color primaryColor, Color accentColor) {
-    final staggerDelay = 70.ms;
-    final Color drawerBackgroundColor = theme.canvasColor;
-    final Color drawerHeaderColor = primaryColor.withOpacity(0.05);
-    final Color itemTextColor = primaryColor.withOpacity(0.85);
-    final Color selectedItemColor = accentColor;
-    final Color iconColor = primaryColor.withOpacity(0.65);
+  // --- YA NO NECESITAMOS LOS MÉTODOS DEL DRAWER AQUÍ ---
+  // _buildAppDrawer, _buildDrawerHeaderContent, y _buildDrawerItem han sido eliminados.
 
-    return Drawer(
-      backgroundColor: drawerBackgroundColor,
-      elevation: 4.0,
-      child: Column(
-        children: [
-          _buildDrawerHeaderContent(theme, drawerHeaderColor, primaryColor, accentColor),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
-              children: <Widget>[
-                _buildDrawerItem(icon: Icons.dashboard_outlined, text: 'Panel Principal', onTap: () => Navigator.pop(context), theme: theme, itemTextColor: itemTextColor, selectedItemColor: selectedItemColor, iconColor: iconColor, delay: staggerDelay * 1, isSelected: true),
-                _buildDrawerItem(icon: Icons.inventory_2_outlined, text: 'Gestión de Inventario', onTap: () { /* TODO */ Navigator.pop(context); }, theme: theme, itemTextColor: itemTextColor, selectedItemColor: selectedItemColor, iconColor: iconColor, delay: staggerDelay * 2),
-                _buildDrawerItem(icon: Icons.groups_outlined, text: 'Administrar Clientes', onTap: () { /* TODO */ Navigator.pop(context); }, theme: theme, itemTextColor: itemTextColor, selectedItemColor: selectedItemColor, iconColor: iconColor, delay: staggerDelay * 3),
-                _buildDrawerItem(icon: Icons.bar_chart_outlined, text: 'Reportes y Análisis', onTap: () { /* TODO */ Navigator.pop(context); }, theme: theme, itemTextColor: itemTextColor, selectedItemColor: selectedItemColor, iconColor: iconColor, delay: staggerDelay * 4),
-                ExpansionTile(
-                  leading: Icon(Icons.badge_outlined, color: iconColor, size: 22),
-                  title: Text('RRHH', style: theme.textTheme.bodyLarge?.copyWith(color: itemTextColor, fontWeight: FontWeight.normal)),
-                  tilePadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 0.0),
-                  childrenPadding: const EdgeInsets.only(left: 20.0),
-                  iconColor: iconColor,
-                  collapsedIconColor: iconColor,
-                  children: <Widget>[
-                    _buildDrawerItem(
-                      icon: Icons.event_busy_outlined,
-                      text: 'Ausencia',
-                      onTap: () {
-                        Navigator.pop(context);
-                        // --- LLAMADA FINAL Y CORRECTA (sin const) ---
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => LeaveRequestPage()));
-                      },
-                      theme: theme,
-                      itemTextColor: itemTextColor,
-                      selectedItemColor: selectedItemColor,
-                      iconColor: iconColor,
-                      delay: 0.ms,
-                    ),
-                  ],
-                ).animate().fadeIn(delay: staggerDelay * 5).slideX(begin: -0.3, duration: 450.ms, curve: Curves.easeOut),
-                Divider(color: primaryColor.withOpacity(0.1), indent: 16, endIndent: 16, height: 24).animate().fadeIn(delay: staggerDelay * 6),
-                _buildDrawerItem(icon: Icons.settings_outlined, text: 'Configuración', onTap: () { /* TODO */ Navigator.pop(context); }, theme: theme, itemTextColor: itemTextColor, selectedItemColor: selectedItemColor, iconColor: iconColor, delay: staggerDelay * 7),
-                _buildDrawerItem(icon: Icons.help_outline, text: 'Ayuda y Soporte', onTap: () { /* TODO */ Navigator.pop(context); }, theme: theme, itemTextColor: itemTextColor, selectedItemColor: selectedItemColor, iconColor: iconColor, delay: staggerDelay * 8),
-                Divider(color: primaryColor.withOpacity(0.1), indent: 16, endIndent: 16, height: 24).animate().fadeIn(delay: staggerDelay * 9),
-                _buildDrawerItem(icon: Icons.logout_outlined, text: 'Cerrar Sesión', onTap: _logout, theme: theme, itemTextColor: itemTextColor, selectedItemColor: selectedItemColor, iconColor: iconColor, isLogout: true, delay: staggerDelay * 10),
-              ],
-            ),
-          ),
-          SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 20.0, top:10.0),
-              child: Text('DISDEL S.A. © ${DateTime.now().year}', textAlign: TextAlign.center, style: theme.textTheme.bodySmall?.copyWith(color: primaryColor.withOpacity(0.5))),
-            ).animate().fadeIn(delay: staggerDelay * 11),
-          ),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildDrawerHeaderContent(ThemeData theme, Color headerBackgroundColor, Color primaryColor, Color accentColor) {
-    return Container(
-      padding: EdgeInsets.fromLTRB(20, MediaQuery.of(context).padding.top + 20, 20, 24),
-      decoration: BoxDecoration(color: headerBackgroundColor),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          CircleAvatar(
-            radius: 30, backgroundColor: accentColor,
-            child: Text(_selectedRoleName?.isNotEmpty == true ? _selectedRoleName![0].toUpperCase() : "D", style: TextStyle(fontSize: 28, color: Colors.white, fontWeight: FontWeight.bold)),
-          ).animate(delay: 150.ms).scale(duration: 500.ms, curve: Curves.elasticOut),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(_selectedRoleName ?? 'Usuario DISDEL', style: theme.textTheme.titleLarge?.copyWith(color: primaryColor, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis).animate().fadeIn(delay: 250.ms).slideX(begin: -0.2),
-                if (_userDocEntry != null) Text('ID Usuario: $_userDocEntry', style: theme.textTheme.bodyMedium?.copyWith(color: primaryColor.withOpacity(0.7))).animate().fadeIn(delay: 350.ms).slideX(begin: -0.2),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDrawerItem({
-    required IconData icon, required String text, required GestureTapCallback onTap, required ThemeData theme,
-    required Color itemTextColor, required Color selectedItemColor, required Color iconColor,
-    bool isLogout = false, bool isSelected = false, required Duration delay,
-  }) {
-    final Color effectiveIconColor = isSelected ? selectedItemColor : (isLogout ? Colors.red.shade400 : iconColor);
-    final Color effectiveTextColor = isSelected ? selectedItemColor : (isLogout ? Colors.red.shade500 : itemTextColor);
-    final FontWeight effectiveFontWeight = isSelected ? FontWeight.bold : FontWeight.normal;
-
-    return Material(
-      color: isSelected ? selectedItemColor.withOpacity(0.1) : Colors.transparent,
-      borderRadius: BorderRadius.circular(8),
-      child: InkWell(
-        onTap: onTap, borderRadius: BorderRadius.circular(8),
-        splashColor: selectedItemColor.withOpacity(0.15), highlightColor: selectedItemColor.withOpacity(0.1),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-          child: Row(
-            children: <Widget>[
-              Icon(icon, color: effectiveIconColor, size: 22),
-              const SizedBox(width: 20),
-              Expanded(child: Text(text, style: theme.textTheme.bodyLarge?.copyWith(color: effectiveTextColor, fontWeight: effectiveFontWeight))),
-              if (isSelected) Container(width: 4, height: 20, decoration: BoxDecoration(color: selectedItemColor, borderRadius: BorderRadius.circular(2))).animate().fadeIn(duration: 200.ms)
-            ],
-          ),
-        ),
-      ),
-    ).animate(delay: delay).fadeIn(duration: 350.ms, curve: Curves.easeOut).slideX(begin: -0.3, duration: 450.ms, curve: Curves.easeOut);
-  }
-
+  // --- WIDGETS DEL CUERPO DE LA PÁGINA (sin cambios) ---
   Widget _buildWelcomeHeader(ThemeData theme, Color primaryColor) {
+    // ... (el código de este método no cambia)
     final String displayName = _userName ?? _selectedRoleName ?? 'Usuario';
 
     return Column(
@@ -356,6 +249,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildCarouselSliderSection(ThemeData theme, Color primaryColor, Color accentColor) {
+    // ... (el código de este método no cambia)
     if (_quickActions.isEmpty) {
       return const Center(child: Padding(padding: EdgeInsets.all(16.0), child: Text("No hay acciones disponibles.")));
     }
@@ -402,6 +296,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildCarouselItem(ThemeData theme, String label, IconData icon, Color backgroundColor, VoidCallback onTap) {
+    // ... (el código de este método no cambia)
     const Color contentColor = Color(0xFF616969);
 
     return InkWell(
@@ -442,6 +337,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildNotesSection(ThemeData theme, Color primaryColor, Color accentColor) {
+    // ... (el código de este método no cambia)
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -496,7 +392,7 @@ class _HomePageState extends State<HomePage> {
             child: Align(
               alignment: Alignment.centerRight,
               child: TextButton(
-                onPressed: () { /* TODO: Ver todas las notas */ print("TODO: Ver todas las notas"); ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Funcionalidad para ver todas las notas no implementada aún.'))); },
+                onPressed: () { print("TODO: Ver todas las notas"); ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Funcionalidad para ver todas las notas no implementada aún.'))); },
                 child: Text("Ver todas (${_userNotes.length})", style: TextStyle(color: accentColor, fontWeight: FontWeight.bold)),
               ),
             ),
@@ -506,6 +402,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildNoteItem(ThemeData theme, Note note, Color primaryColor, Color accentColor, Duration delay) {
+    // ... (el código de este método no cambia)
     return Card(
       elevation: 1.5, margin: const EdgeInsets.only(bottom: 10.0),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0), side: BorderSide(color: primaryColor.withOpacity(0.3), width: 1)),
