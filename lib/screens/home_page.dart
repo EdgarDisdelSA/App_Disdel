@@ -1,7 +1,8 @@
-// lib/home_page.dart
+// lib/screens/home_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:carousel_slider/carousel_slider.dart' as carousel;
+import 'leave_request_page.dart';
 
 // Modelo simple para una nota
 class Note {
@@ -44,7 +45,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   String? _userDocEntry;
   String? _selectedRoleName;
-  String? _userName; // Variable para almacenar el nombre del usuario
+  String? _userName;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -56,7 +57,6 @@ class _HomePageState extends State<HomePage> {
     Note(id: '3', title: 'Lista de Pendientes', content: '- Enviar correos de seguimiento.\n- Actualizar reporte semanal.', lastEdited: DateTime.now()),
   ];
 
-  // Inicializar _quickActions como una lista vacía para evitar errores con 'late'
   List<QuickAction> _quickActions = [];
 
   @override
@@ -65,14 +65,13 @@ class _HomePageState extends State<HomePage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         final theme = Theme.of(context);
-        // Ahora asignamos los valores a la lista ya existente
         _quickActions = [
           QuickAction(label: "Soporte Técnico", icon: Icons.headset_mic_outlined, onTap: () { print("Soporte Tapped"); }, backgroundColor: Colors.orange.withOpacity(0.1)),
           QuickAction(label: "Nuevo Pedido", icon: Icons.add_shopping_cart_outlined, onTap: () { print("Nuevo Pedido Tapped"); }, backgroundColor: theme.colorScheme.secondary.withOpacity(0.1)),
           QuickAction(label: "Ver Facturas", icon: Icons.receipt_long_outlined, onTap: () { print("Ver Facturas Tapped"); }, backgroundColor: theme.colorScheme.primary.withOpacity(0.1)),
           QuickAction(label: "Rutas de Entrega", icon: Icons.location_on_outlined, onTap: () { print("Rutas Tapped"); }, backgroundColor: Colors.teal.withOpacity(0.1)),
         ];
-        setState(() {}); // Necesario para que el build sepa que _quickActions tiene datos
+        setState(() {});
       }
     });
   }
@@ -85,19 +84,18 @@ class _HomePageState extends State<HomePage> {
       _userDocEntry = arguments['userDocEntry'] as String?;
       final dynamic selectedRoleArg = arguments['selectedRole'];
       _selectedRoleName = selectedRoleArg?.toString();
-      // Leemos el nombre de usuario de los argumentos
       _userName = arguments['nameuser'] as String?;
     }
   }
 
-  void _logout() { /* ... (sin cambios) ... */
+  void _logout() {
     print("Cerrando sesión...");
     if (mounted) {
       Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
     }
   }
 
-  void _showNoteDialog({Note? existingNote}) { /* ... (sin cambios) ... */
+  void _showNoteDialog({Note? existingNote}) {
     final bool isEditing = existingNote != null;
     TextEditingController titleController = TextEditingController(text: existingNote?.title);
     TextEditingController contentController = TextEditingController(text: existingNote?.content);
@@ -156,7 +154,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _deleteNote(Note noteToDelete) { /* ... (sin cambios) ... */
+  void _deleteNote(Note noteToDelete) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -211,34 +209,18 @@ class _HomePageState extends State<HomePage> {
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: <Widget>[
-          _buildWelcomeHeader(theme, primaryColor)
-              .animate()
-              .fadeIn(duration: 500.ms)
-              .slideY(begin: 0.1, curve: Curves.easeOutCubic),
-
+          _buildWelcomeHeader(theme, primaryColor).animate().fadeIn(duration: 500.ms).slideY(begin: 0.1, curve: Curves.easeOutCubic),
           const SizedBox(height: 28),
-
-          _buildCarouselSliderSection(theme, primaryColor, accentColor) // El chequeo de _quickActions.isEmpty ahora está dentro de este método
-              .animate(delay: 200.ms)
-              .fadeIn(duration: 500.ms)
-              .slideY(begin: 0.1, curve: Curves.easeOutCubic),
-
+          _buildCarouselSliderSection(theme, primaryColor, accentColor).animate(delay: 200.ms).fadeIn(duration: 500.ms).slideY(begin: 0.1, curve: Curves.easeOutCubic),
           const SizedBox(height: 28),
-
-          _buildNotesSection(theme, primaryColor, accentColor)
-              .animate(delay: 300.ms)
-              .fadeIn(duration: 500.ms)
-              .slideY(begin: 0.1, curve: Curves.easeOutCubic),
-
+          _buildNotesSection(theme, primaryColor, accentColor).animate(delay: 300.ms).fadeIn(duration: 500.ms).slideY(begin: 0.1, curve: Curves.easeOutCubic),
           const SizedBox(height: 30),
         ],
       ),
     );
   }
 
-  // --- DRAWER ---
   Widget _buildAppDrawer(BuildContext context, ThemeData theme, Color primaryColor, Color accentColor) {
-    // ... (código del Drawer sin cambios, omitido por brevedad)
     final staggerDelay = 70.ms;
     final Color drawerBackgroundColor = theme.canvasColor;
     final Color drawerHeaderColor = primaryColor.withOpacity(0.05);
@@ -260,11 +242,35 @@ class _HomePageState extends State<HomePage> {
                 _buildDrawerItem(icon: Icons.inventory_2_outlined, text: 'Gestión de Inventario', onTap: () { /* TODO */ Navigator.pop(context); }, theme: theme, itemTextColor: itemTextColor, selectedItemColor: selectedItemColor, iconColor: iconColor, delay: staggerDelay * 2),
                 _buildDrawerItem(icon: Icons.groups_outlined, text: 'Administrar Clientes', onTap: () { /* TODO */ Navigator.pop(context); }, theme: theme, itemTextColor: itemTextColor, selectedItemColor: selectedItemColor, iconColor: iconColor, delay: staggerDelay * 3),
                 _buildDrawerItem(icon: Icons.bar_chart_outlined, text: 'Reportes y Análisis', onTap: () { /* TODO */ Navigator.pop(context); }, theme: theme, itemTextColor: itemTextColor, selectedItemColor: selectedItemColor, iconColor: iconColor, delay: staggerDelay * 4),
-                Divider(color: primaryColor.withOpacity(0.1), indent: 16, endIndent: 16, height: 24).animate().fadeIn(delay: staggerDelay * 5),
-                _buildDrawerItem(icon: Icons.settings_outlined, text: 'Configuración', onTap: () { /* TODO */ Navigator.pop(context); }, theme: theme, itemTextColor: itemTextColor, selectedItemColor: selectedItemColor, iconColor: iconColor, delay: staggerDelay * 6),
-                _buildDrawerItem(icon: Icons.help_outline, text: 'Ayuda y Soporte', onTap: () { /* TODO */ Navigator.pop(context); }, theme: theme, itemTextColor: itemTextColor, selectedItemColor: selectedItemColor, iconColor: iconColor, delay: staggerDelay * 7),
-                Divider(color: primaryColor.withOpacity(0.1), indent: 16, endIndent: 16, height: 24).animate().fadeIn(delay: staggerDelay * 8),
-                _buildDrawerItem(icon: Icons.logout_outlined, text: 'Cerrar Sesión', onTap: _logout, theme: theme, itemTextColor: itemTextColor, selectedItemColor: selectedItemColor, iconColor: iconColor, isLogout: true, delay: staggerDelay * 9),
+                ExpansionTile(
+                  leading: Icon(Icons.badge_outlined, color: iconColor, size: 22),
+                  title: Text('RRHH', style: theme.textTheme.bodyLarge?.copyWith(color: itemTextColor, fontWeight: FontWeight.normal)),
+                  tilePadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 0.0),
+                  childrenPadding: const EdgeInsets.only(left: 20.0),
+                  iconColor: iconColor,
+                  collapsedIconColor: iconColor,
+                  children: <Widget>[
+                    _buildDrawerItem(
+                      icon: Icons.event_busy_outlined,
+                      text: 'Ausencia',
+                      onTap: () {
+                        Navigator.pop(context);
+                        // --- LLAMADA FINAL Y CORRECTA (sin const) ---
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => LeaveRequestPage()));
+                      },
+                      theme: theme,
+                      itemTextColor: itemTextColor,
+                      selectedItemColor: selectedItemColor,
+                      iconColor: iconColor,
+                      delay: 0.ms,
+                    ),
+                  ],
+                ).animate().fadeIn(delay: staggerDelay * 5).slideX(begin: -0.3, duration: 450.ms, curve: Curves.easeOut),
+                Divider(color: primaryColor.withOpacity(0.1), indent: 16, endIndent: 16, height: 24).animate().fadeIn(delay: staggerDelay * 6),
+                _buildDrawerItem(icon: Icons.settings_outlined, text: 'Configuración', onTap: () { /* TODO */ Navigator.pop(context); }, theme: theme, itemTextColor: itemTextColor, selectedItemColor: selectedItemColor, iconColor: iconColor, delay: staggerDelay * 7),
+                _buildDrawerItem(icon: Icons.help_outline, text: 'Ayuda y Soporte', onTap: () { /* TODO */ Navigator.pop(context); }, theme: theme, itemTextColor: itemTextColor, selectedItemColor: selectedItemColor, iconColor: iconColor, delay: staggerDelay * 8),
+                Divider(color: primaryColor.withOpacity(0.1), indent: 16, endIndent: 16, height: 24).animate().fadeIn(delay: staggerDelay * 9),
+                _buildDrawerItem(icon: Icons.logout_outlined, text: 'Cerrar Sesión', onTap: _logout, theme: theme, itemTextColor: itemTextColor, selectedItemColor: selectedItemColor, iconColor: iconColor, isLogout: true, delay: staggerDelay * 10),
               ],
             ),
           ),
@@ -273,7 +279,7 @@ class _HomePageState extends State<HomePage> {
             child: Padding(
               padding: const EdgeInsets.only(bottom: 20.0, top:10.0),
               child: Text('DISDEL S.A. © ${DateTime.now().year}', textAlign: TextAlign.center, style: theme.textTheme.bodySmall?.copyWith(color: primaryColor.withOpacity(0.5))),
-            ).animate().fadeIn(delay: staggerDelay * 10),
+            ).animate().fadeIn(delay: staggerDelay * 11),
           ),
         ],
       ),
@@ -281,7 +287,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildDrawerHeaderContent(ThemeData theme, Color headerBackgroundColor, Color primaryColor, Color accentColor) {
-    // ... (Código de _buildDrawerHeaderContent sin cambios)
     return Container(
       padding: EdgeInsets.fromLTRB(20, MediaQuery.of(context).padding.top + 20, 20, 24),
       decoration: BoxDecoration(color: headerBackgroundColor),
@@ -312,7 +317,6 @@ class _HomePageState extends State<HomePage> {
     required Color itemTextColor, required Color selectedItemColor, required Color iconColor,
     bool isLogout = false, bool isSelected = false, required Duration delay,
   }) {
-    // ... (Código de _buildDrawerItem sin cambios)
     final Color effectiveIconColor = isSelected ? selectedItemColor : (isLogout ? Colors.red.shade400 : iconColor);
     final Color effectiveTextColor = isSelected ? selectedItemColor : (isLogout ? Colors.red.shade500 : itemTextColor);
     final FontWeight effectiveFontWeight = isSelected ? FontWeight.bold : FontWeight.normal;
@@ -338,9 +342,7 @@ class _HomePageState extends State<HomePage> {
     ).animate(delay: delay).fadeIn(duration: 350.ms, curve: Curves.easeOut).slideX(begin: -0.3, duration: 450.ms, curve: Curves.easeOut);
   }
 
-  // --- WIDGETS DEL CUERPO DE LA PÁGINA ---
   Widget _buildWelcomeHeader(ThemeData theme, Color primaryColor) {
-    // Se prioriza el nombre de usuario, con fallback al rol o un texto genérico.
     final String displayName = _userName ?? _selectedRoleName ?? 'Usuario';
 
     return Column(
@@ -354,7 +356,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildCarouselSliderSection(ThemeData theme, Color primaryColor, Color accentColor) {
-    // El chequeo de si _quickActions está vacío se hace aquí ahora.
     if (_quickActions.isEmpty) {
       return const Center(child: Padding(padding: EdgeInsets.all(16.0), child: Text("No hay acciones disponibles.")));
     }
@@ -365,13 +366,7 @@ class _HomePageState extends State<HomePage> {
           itemCount: _quickActions.length,
           itemBuilder: (BuildContext context, int itemIndex, int pageViewIndex) {
             final action = _quickActions[itemIndex];
-            return _buildCarouselItem(
-                theme,
-                action.label,
-                action.icon,
-                action.backgroundColor ?? accentColor.withOpacity(0.1),
-                action.onTap
-            );
+            return _buildCarouselItem(theme, action.label, action.icon, action.backgroundColor ?? accentColor.withOpacity(0.1), action.onTap);
           },
           options: carousel.CarouselOptions(
             height: 150.0,
@@ -407,7 +402,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildCarouselItem(ThemeData theme, String label, IconData icon, Color backgroundColor, VoidCallback onTap) {
-    // Color para el texto y el icono
     const Color contentColor = Color(0xFF616969);
 
     return InkWell(
@@ -418,12 +412,11 @@ class _HomePageState extends State<HomePage> {
       child: Card(
         elevation: 0.0,
         color: Colors.transparent,
-        // --- CAMBIO AQUÍ: Añadimos un borde a la tarjeta ---
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(      // Se añade la propiedad 'side'
-            color: Color(0xFF19ac8a),  // Con el color que solicitaste
-            width: 1.5,                // Y un grosor para que sea visible
+          side: const BorderSide(
+            color: Color(0xFF19ac8a),
+            width: 1.5,
           ),
         ),
         child: Padding(
@@ -434,14 +427,10 @@ class _HomePageState extends State<HomePage> {
             children: <Widget>[
               Icon(icon, size: 36, color: contentColor.withOpacity(0.85)),
               const SizedBox(height: 10),
-
               Text(
                 label,
                 textAlign: TextAlign.center,
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: contentColor,
-                ),
+                style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600, color: contentColor),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -452,8 +441,6 @@ class _HomePageState extends State<HomePage> {
     ).animate().fadeIn(duration: 400.ms).scaleXY(begin: 0.95, curve: Curves.easeOutBack);
   }
 
-
-  // --- NUEVA SECCIÓN DE NOTAS ---
   Widget _buildNotesSection(ThemeData theme, Color primaryColor, Color accentColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

@@ -17,7 +17,11 @@ dependencies:
   shared_preferences: ^2.2.2 # O la versión más reciente
   cupertino_icons: ^1.0.8
   carousel_slider: ^5.0.0
-  flutter_animate: ^4.5.0 # <--- AQUÍ ES EL LUGAR CORRECTO
+  flutter_animate: ^4.5.0
+
+  # <-- ¡AÑADE ESTA LÍNEA! Es la que falta para el formato de fechas.
+  intl: ^0.18.1
+
 
 dev_dependencies:
   flutter_test:
